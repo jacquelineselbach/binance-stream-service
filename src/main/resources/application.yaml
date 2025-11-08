@@ -1,0 +1,12 @@
+binance:
+  symbols:
+    - btcusdt
+    - ethusdt
+    - bnbusdt
+  streams:
+    - "@kline_1m"
+    - "@trade"
+    - "@miniTicker"
+    - "@ticker"
+  globalStreams:
+    - "!miniTicker@arr"
