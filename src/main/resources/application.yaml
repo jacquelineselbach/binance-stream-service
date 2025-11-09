@@ -3,10 +3,15 @@ binance:
     - btcusdt
     - ethusdt
     - bnbusdt
+
   streams:
     - "@kline_1m"
-    - "@trade"
-    - "@miniTicker"
-    - "@ticker"
+ #   - "@trade"
+ #   - "@miniTicker"
+ #   - "@ticker"
+ #   - "@depth10"
+ #   - "@depth@100ms"
+
   globalStreams:
-    - "!miniTicker@arr"
+  #  - "!miniTicker@arr"
+  #  - "!ticker@arr"

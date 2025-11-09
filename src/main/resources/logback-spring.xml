@@ -10,7 +10,7 @@
                 <threadName />
                 <arguments />
                 <structuredArguments />
-
+                <logstashMarkers />
                 <stackTrace />
             </providers>
         </encoder>

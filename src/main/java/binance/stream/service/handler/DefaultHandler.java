@@ -2,18 +2,21 @@ package binance.stream.service.handler;
 
 import com.google.gson.JsonElement;
 import lombok.extern.slf4j.Slf4j;
-import java.time.Instant;
-import static net.logstash.logback.argument.StructuredArguments.kv;
+import net.logstash.logback.marker.Markers;
+import org.slf4j.Marker;
 
 @Slf4j
 public class DefaultHandler implements EventHandler {
 
     @Override
     public void handle(String stream, JsonElement data) {
-        log.info("Unknown event {} {} {}",
-                kv("event", "Unknown"),
-                kv("timestamp", Instant.now().toString()),
-                kv("stream", stream),
-                kv("data", data.toString()));
+
+        try {
+            Marker marker = Markers.appendRaw("data", data.toString());
+            log.info(marker, stream);
+        } catch (Exception e) {
+            log.error("Error processing unknown message: {}", e.getMessage(), e);
+        }
+
     }
 }

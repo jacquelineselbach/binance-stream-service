@@ -14,6 +14,7 @@ import java.util.List;
 @Component
 public class StreamRunner implements CommandLineRunner {
 
+    private static final String BASE_URL = "wss://stream.binance.com:9443";
     private final BinanceConfig config;
 
     public StreamRunner(BinanceConfig config) {
@@ -22,30 +23,45 @@ public class StreamRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        List<String> allStreams = new ArrayList<>();
+        List<String> streams = collectStreams();
 
-        if (config.getSymbols() != null && config.getStreams() != null) {
-            for (String symbol : config.getSymbols()) {
-                for (String stream : config.getStreams()) {
-                    allStreams.add(symbol.toLowerCase() + stream);
-                }
-            }
-        }
-
-        if (config.getGlobalStreams() != null && !config.getGlobalStreams().isEmpty()) {
-            allStreams.addAll(config.getGlobalStreams());
-        }
-
-        if (allStreams.isEmpty()) {
+        if (streams.isEmpty()) {
             throw new IllegalStateException("No Binance streams configured in application.yml");
         }
 
-        String socketUrl = "wss://stream.binance.com:9443/stream?streams=" + String.join("/", allStreams);
+        String socketUrl = buildSocketUrl(streams);
         log.info("Connecting to: {}", socketUrl);
 
         WebSocketClient client = new WebSocketClient(new URI(socketUrl));
         client.connectBlocking();
 
         log.info("Connected to Binance WebSocket stream.");
+    }
+
+    private List<String> collectStreams() {
+        List<String> streams = new ArrayList<>();
+
+        if (config.getSymbols() != null && config.getStreams() != null) {
+            config.getSymbols().forEach(symbol ->
+                    config.getStreams().forEach(stream ->
+                            streams.add(symbol.toLowerCase() + stream))
+            );
+        }
+
+        if (config.getGlobalStreams() != null && !config.getGlobalStreams().isEmpty()) {
+            streams.addAll(config.getGlobalStreams());
+        }
+
+        return streams;
+    }
+
+    private String buildSocketUrl(List<String> streams) {
+
+        if (streams.size() == 1 && streams.getFirst().startsWith("!")) {
+            return BASE_URL + "/ws/" + streams.getFirst();
+        }
+
+        return BASE_URL + "/stream?streams=" + String.join("/", streams);
+
     }
 }
